@@ -132,4 +132,32 @@ def rating_cols_clean(df):
                      .astype(int)
                      )
     
-    return df1    
+    return df1  
+
+def clean_split_reviews_ids(df):
+    """
+    input raw df
+    split all columns containing multiple values into lists for indexing
+    output
+    """
+    df1=df.copy()
+    
+    df1.review_id = df1.review_id.str.split(',')
+    df1.user_id = df1.user_id.str.split(',')
+    df1.review_title = df1.review_title.str.split(',')
+    df1.review_content = df1.review_content.str.split(',')
+    return df1
+
+
+def remove_product_id_dupl(df):
+    """
+    input raw df
+    order by the number of product reviews
+    remove any duplicates, as identified by identical product names or product ids
+    """
+    df1 = df.copy()
+    sorted_df1 = df1.sort_values(by='rating_count', ascending=False)
+    df1 = sorted_df1.drop_duplicates(subset='product_id', keep='first')
+    df1 = sorted_df1.drop_duplicates(subset='product_name', keep='first')
+    df1.reset_index(drop=True, inplace=True)
+    return df1
