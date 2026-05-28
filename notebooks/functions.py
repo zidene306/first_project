@@ -1,4 +1,8 @@
 import pandas as pd
+import importlib # to refresh functions imported from functions.py file
+import functions #updates re to be made in functions.py
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 #=============================================================================
 #Split the category colinto several categories
@@ -51,7 +55,7 @@ def disc_price_col_clean(df):
                                 .str.replace(",", "", regex = False)
                                 .astype(float)
                                 .round(2)
-                                .apply(lambda x : f"{x : .2f}")
+                                #.apply(lambda x : f"{x : .2f}")
                               )
     
     return df1
@@ -73,8 +77,10 @@ def actual_price_col_clean(df):
                                 .astype(str)
                                 .str.replace("₹", "", regex= False)
                                 .str.replace(",", "", regex = False)
+                                
                                 .astype(float)
-                                .apply(lambda x : f"{x : .2f}")
+                                .round(2)
+                                #.apply(lambda x : f"{x : .2f}")
                               )
     
     return df1
@@ -119,9 +125,10 @@ def rating_cols_clean(df):
                      df1["rating"]
                      .astype(str)
                      
-                     .str.replace("|", "1", regex= False)    
+                     .str.replace("|", "1", regex= False)
+                     .str.strip()
                      .astype(float)
-                     .apply(lambda x : f"{x : .1f}")
+                     
                      )
    #convert the column rating_count to int
     df1["rating_count"] = (
@@ -161,3 +168,92 @@ def remove_product_id_dupl(df):
     df1 = sorted_df1.drop_duplicates(subset='product_name', keep='first')
     df1.reset_index(drop=True, inplace=True)
     return df1
+##############################################################################
+# Categorizes price and ratings
+##############################################################################
+def categorize_price_rating(df):
+    df1 = df.copy()
+    df1["price_segment"] = pd.cut(
+                                    df1["discounted_price"],
+                                    bins = [0, 500, 5000, 100000],
+                                    labels = ["Budget [0-500]", "Mid-Range[500-5000]", "Premium[5000-100000]"]
+                                  )
+    
+    df1["rating_segment"] = pd.cut(
+                                    df1["rating"],
+                                    bins = [0, 3, 4.2, 5],
+                                    labels = ["Poor[0 - 3]", "Mid-value[3.1 - 4.2]", "Excellent[4.3 - 5]"]
+                                  )
+                                
+    return df1   
+
+#=============================================================================
+# PLOTS
+#=============================================================================
+
+##############################################################################
+# Plot1: Zidene ==>PRICE SEGMENTS VS RATING BARCHART
+##############################################################################
+def price_seg_rating_plot(df):
+    df1 = df.copy()
+    
+    plt.figure(figsize = (10, 6))
+    #Plot background
+    plt.gca().set_facecolor("#f5f5f5")
+    
+    my_plot = sns.countplot(
+                            data = df1,
+                            x = "price_segment",
+                            hue = "rating_segment",
+                            palette = ["red", "orange", "green"]
+                          )
+    plt.xlabel("Price Segment", fontsize = 16)
+    plt.ylabel("Rating", fontsize = 16)
+    plt.title("Rating / Price Segments Relationship", fontsize = 20)
+    plt.xticks(fontsize = 14)
+    plt.yticks(fontsize = 14)
+    plt.grid(axis='y', linestyle='--', alpha=0.3)
+    for container in my_plot.containers:
+        perc = my_plot.bar_label(container)
+        my_plot.bar_label(container)
+    
+    plt.show()
+
+##############################################################################
+# Plot2: Zidene ==>PRICE SEGMENTS VS RATING
+##############################################################################
+def rating_vs_categ_plot(df):
+    """
+    Bubble graph that shows how products are related to ratings
+    """
+    df1 = df.copy()
+
+    #Definition of plot characteristics
+    plt.figure(figsize = (12,6))
+    # Background inside chart
+    plt.gca().set_facecolor("#f5f5f5")
+    
+    my_plot = sns.boxplot(
+                            data = df1,
+                            y = "sub_cat1",
+                            x = "rating",
+                            color = "green"
+                         )
+    #
+    #plt.xscale("log")
+    plt.xlabel("Rating", fontsize = 16)
+    plt.ylabel("Category", fontsize = 16)
+    plt.title("Categories Rating", fontsize = 20)
+    plt.xticks(fontsize = 14)
+    plt.yticks(fontsize = 14)
+    #plt.legend()
+    
+    # Transparent grid
+    plt.grid(
+            True,
+            linestyle="--",
+            alpha=0.3
+            )
+    
+    plt.show()
+#=============================================================================
