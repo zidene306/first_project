@@ -1,6 +1,6 @@
 import pandas as pd
 import importlib # to refresh functions imported from functions.py file
-import functions #updates re to be made in functions.py
+#import functions #updates re to be made in functions.py
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -257,3 +257,40 @@ def rating_vs_categ_plot(df):
     
     plt.show()
 #=============================================================================
+# Plot3: Zidene ==>PRICE SEGMENTS VS RATING BARCHART: Stacked bar chart
+#=============================================================================
+def price_seg_rating_plot(df):
+    df1 = df.copy()
+    
+    plt.figure(figsize = (10, 6))
+    #Plot background
+    plt.gca().set_facecolor("#f5f5f5")
+
+    # Cross table
+    table = pd.crosstab(
+                        
+                        df["rating_segment"],
+                        df["price_segment"]
+                        )
+
+    #plt.figure(figsize=(8,5))
+
+    sns.heatmap(
+                table,
+                annot=True,
+                fmt="d",
+                cmap="YlGnBu"
+                )
+    
+    #plt.xlabel("Price Segment", fontsize = 16)
+    #plt.ylabel("Rating", fontsize = 16)
+    plt.title("Rating / Price Segments Relationship", fontsize = 20)
+    #plt.xticks(fontsize = 14)
+    #plt.yticks(fontsize = 14)
+    #plt.grid(axis='y', linestyle='--', alpha=0.3)
+    #for container in my_plot.containers:
+        #perc = my_plot.bar_label(container)
+        #my_plot.bar_label(container)
+    
+    print("figure displayed")
+
